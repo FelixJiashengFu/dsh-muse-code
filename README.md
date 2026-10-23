@@ -2,6 +2,16 @@
 
 在 DeepSeek Harness 里直接使用 Meta 的 [Muse Code](https://muse.meta.ai)：输入框左侧的 **Muse** 开关打开后，右侧边栏出现 Muse Code 面板；聊天里的工具与面板共享**同一个会话**。
 
+## 安装
+
+先在本机装好并登录 Muse Code CLI（见文末[依赖](#依赖)）。然后在 DeepSeek Harness 里打开 **插件 → 添加插件**，粘贴下面的仓库地址，点 **安装**，装好后点 **立即启用**：
+
+```
+https://github.com/FelixJiashengFu/dsh-muse-code
+```
+
+输入框左侧随即出现「Muse」开关。升级：在插件页卸载后，用同一个地址重新安装。
+
 ## 工作方式
 
 ```
@@ -185,18 +195,19 @@ SSE 事件（`data: {"type": ...}`）：
 9. **锁定后必须手动解锁**：`cap-reached` / `safety-margin` / `ledger-corrupt` 会持久化锁定，重启 DSH 也不会自动恢复；
    只有面板里的「提高上限」或「重置花费记录」能解除（重置需要输入 `RESET`），这是有意的 fail-closed 设计。
 
-## 安装
+## 本地开发
+
+克隆本仓库后，在 **添加插件** 里填本目录的绝对路径，或在 DSH 里让 agent 调用插件管理器：
 
 ```powershell
-# 在 DSH 里（agent 工具）
-plugin_manager install_bundle K:\Redshift\plugins\dsh-muse-code
+plugin_manager install_bundle <本目录绝对路径>
 ```
 
 改 host 半后需要重载插件（让 DSH 重新加载 `dsh-muse-code`；最稳妥是重启 DSH Web），改 client 半则刷新页面一次。
 
 ## 自检
 
-三个脚本都不需要联网、不会启动 Muse，只用本机 node 跑：
+三个脚本都不需要联网、不会启动 Muse，在仓库根目录用本机 node 跑：
 
 | 脚本 | 覆盖 | 断言数 |
 | --- | --- | --- |
@@ -205,17 +216,18 @@ plugin_manager install_bundle K:\Redshift\plugins\dsh-muse-code
 | `test/budget.test.mjs` + `test/enforcement.test.mjs` | `SpendGuard` 计价与预留、锁定／解锁、超限后拒绝发起调用 | node:test |
 
 ```powershell
-$node = C:\Users\fujia\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\node\bin\node.exe
-& $node K:\Redshift\plugins\dsh-muse-code\test\verify-client.mjs
-& $node K:\Redshift\plugins\dsh-muse-code\test\panel-render.test.mjs
-& $node --test K:\Redshift\plugins\dsh-muse-code\test\budget.test.mjs K:\Redshift\plugins\dsh-muse-code\test\enforcement.test.mjs
+# DSH 自带的 Node；本机有 node 22+ 也可以直接用 node
+$node = "$env:USERPROFILE\.dsh\dsh-runtimes\dsh-primary-runtime\dependencies\node\bin\node.exe"
+& $node test\verify-client.mjs
+& $node test\panel-render.test.mjs
+& $node --test test\budget.test.mjs test\enforcement.test.mjs
 ```
 
 另外还有一个**需要 DSH 正在运行**的端到端脚本（走面板自己的 GET `/state`、SSE `/events`、POST `/prompt` 三条通道，
 发出一个真实回合并核对流式增量与最终文本）：`test/panel-transport.mjs`。它会真实调用 Muse（产生费用），只应在验收时手动跑。
 
 ```powershell
-& $node K:\Redshift\plugins\dsh-muse-code\test\panel-transport.mjs
+& $node test\panel-transport.mjs
 ```
 
 ## 依赖

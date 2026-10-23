@@ -1,7 +1,6 @@
 {
   "name": "dsh-muse-code",
   "version": "0.1.0",
-  "private": true,
   "description": "Muse Code inside DeepSeek Harness: a composer switch that opens a live Muse Code panel in the right sidebar, with the same session readable and controllable from chat tools.",
   "type": "module",
   "main": "lib/index.js",
@@ -27,6 +26,15 @@
     "sidebar"
   ],
   "license": "MIT",
+  "author": "Jiasheng Fu",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FelixJiashengFu/dsh-muse-code.git"
+  },
+  "homepage": "https://github.com/FelixJiashengFu/dsh-muse-code#readme",
+  "bugs": {
+    "url": "https://github.com/FelixJiashengFu/dsh-muse-code/issues"
+  },
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
